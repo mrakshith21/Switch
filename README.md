@@ -16,3 +16,30 @@ Tasks
     - Smaller models for applying code edits
 
 
+
+
+
+Agent Graph
+
+
+User Prompt 
+
+    |
+    v
+
+1. Understands what to do
+    - Context fetching
+    - Prompt, Query for info in codebase, grep, ...
+
+2. Plans action
+    - Create a TODO list
+
+3. for each item in list
+    - identify blocks of code (or files) which require changes or creation
+    - Prompt LLM and get replacement code
+    - Pass through linter 
+        -> If successful, apply the change
+        -> If failed, get reason and reprompt LLM.
+
+[Optional]
+4. Validate the changes with a test or build, etc.

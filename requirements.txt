@@ -2,3 +2,6 @@ torch
 faiss-cpu
 sentence-transformers
 langchain_text_splitters
+langgraph
+langchain
+dotenv

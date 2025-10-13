@@ -1,4 +1,6 @@
 .venv
 .vscode
 __pycache__
-test/my-project/faiss_index
+test/**
+
+.env

@@ -1,5 +1,6 @@
 import argparse
 from indexer import create_index, query_index
+from coding_agent import run_coding_agent
 
 parser = argparse.ArgumentParser(description='Switch app params')
 
@@ -13,15 +14,18 @@ parser.add_argument('prompt', type=str, nargs='?',
 
 args = parser.parse_args()
 
-
-print("Argument values:")
-print(args.action)
-print(args.prompt)
-
+print(args)
 if args.action == "index":
     create_index()
 elif args.action == "prompt":
     if args.prompt:
-        query_index(args.prompt)
+        run_coding_agent(args.prompt)
     else:
         print("Please provide a prompt for querying the index.")
+elif args.action == "search":
+    if args.prompt:
+        results = query_index(args.prompt)
+        for doc in results:
+            print(doc)
+    else:
+        print("Please provide a search query.")
