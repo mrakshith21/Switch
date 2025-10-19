@@ -20,10 +20,11 @@ def get_language(file_name: str) -> Language:
 
 def create_index():
     start_time = time.time()
+    vector_store = None
     for root, dirs, files in os.walk("."):
-        path = root.split(os.sep)
         for file_name in files:
-            print("Indexing file path:",file_name)
+            file_path = os.path.join(root, file_name)
+            print("Indexing file path:",file_path)
 
             # Get language
             language = get_language(file_name)
@@ -37,22 +38,26 @@ def create_index():
                 # Create documents using langchain splitters
                 splitter = RecursiveCharacterTextSplitter.from_language(
                     language=language,
-                    chunk_size=50,
-                    chunk_overlap=0,
+                    chunk_size=200,
+                    chunk_overlap=50,
                 )
                 docs = splitter.create_documents([code_str])
                 
+                    
                 # Add metadata to chunks, including source file path
                 for doc in docs:
                     doc.metadata["source_path"] = file_path
                 docs = add_loc_lines_to_docs(docs, code_str)
 
-                # Create embeddings
-                faiss_index = FAISS.from_documents(docs, embedding_model)
+                
+                if vector_store is None:
+                    vector_store = FAISS.from_documents(docs, embedding_model)
+                else:
+                    vector_store.add_documents(docs)
 
-                # Store embeddings
-                faiss_index.save_local(INDEX_PATH)
     end_time = time.time()
+    
+    vector_store.save_local(INDEX_PATH)
     print(f"Indexing completed in {end_time - start_time:.2f} seconds.")
 
 def query_index(prompt: str) -> list[Document]:

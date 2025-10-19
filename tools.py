@@ -4,6 +4,8 @@ import re
 import os
 from indexer import query_index
 from langchain_core.documents import Document
+from pathlib import Path
+from subprocess import run
 
 
 def read_file(file_path: str, from_line: int |  None = None, to_line: int | None = None, read_entire_file: bool = False) -> str:
@@ -37,8 +39,10 @@ def write_file(file_path: str, content: str, insert: bool, from_line: int | None
         file_exists = os.path.exists(file_path)
 
         if insert and not file_exists:
+            path = Path(file_path)
             print("Creating file {}".format(file_path))
-            with open(file_path, "w") as file:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(file_path, "w+") as file:
                 file.write("\n".join(content_lines))
             return
         with open(file_path, "r") as file:
@@ -99,5 +103,25 @@ def grep(root_path, pattern):
 def query(prompt: str) -> list[Document]:
     """
     Performs a vector similarity search on the indexed codebase using the provided prompt.
+    Use this to search for relevant code snippets or files based on the prompt.
     """
     return query_index(prompt)
+
+def execute_command(command: str) -> dict:
+    """
+    Executes a shell command and returns the output.
+    Note that the command will be executed in a Windows 11 machine.
+    """
+    try:
+        inp = input("Can I run the command (y/n): {}\n".format(command))
+        if inp.lower() == 'n':
+            return "Command execution cancelled by user."
+        print("Executing command:", command)
+        result = run(command, capture_output=True, text=True, shell=True)
+        print("Command output:", result.stdout)
+        return {
+            "output" : result.stdout,
+            "error" : result.stderr
+        }
+    except Exception as e:
+        return str(e)
