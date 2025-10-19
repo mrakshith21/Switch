@@ -25,7 +25,5 @@ elif args.action == "prompt":
 elif args.action == "search":
     if args.prompt:
         results = query_index(args.prompt)
-        for doc in results:
-            print(doc)
     else:
         print("Please provide a search query.")

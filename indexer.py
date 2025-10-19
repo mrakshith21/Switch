@@ -7,9 +7,19 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 import time
+import re
 
 INDEX_PATH = "./faiss_index"
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+
+IGNORE_PATH = [
+    'node_modules',
+    ".venv",
+    "__pycache__",
+    ".git",
+]
+
 
 def get_language(file_name: str) -> Language:
     extension = file_name.split(".")[-1].lower()
@@ -17,6 +27,15 @@ def get_language(file_name: str) -> Language:
         return Language.PYTHON
     elif extension in ["java"]:
         return Language.JAVA
+    elif extension in ["js", "jsx", "ts", "tsx"]:
+        return Language.JS
+
+def should_index(file_path: str) -> bool:
+
+    for pattern in IGNORE_PATH:
+        if pattern in file_path:
+            return False
+    return True
 
 def create_index():
     start_time = time.time()
@@ -24,6 +43,10 @@ def create_index():
     for root, dirs, files in os.walk("."):
         for file_name in files:
             file_path = os.path.join(root, file_name)
+
+            if not should_index(file_path):
+                print("Skipping file path:",file_path)
+                continue
             print("Indexing file path:",file_path)
 
             # Get language
@@ -57,7 +80,10 @@ def create_index():
 
     end_time = time.time()
     
-    vector_store.save_local(INDEX_PATH)
+    if vector_store:
+        vector_store.save_local(INDEX_PATH)
+    else:
+        print("No documents were indexed; index not created.")
     print(f"Indexing completed in {end_time - start_time:.2f} seconds.")
 
 def query_index(prompt: str) -> list[Document]:

@@ -11,6 +11,13 @@ from subprocess import run
 def read_file(file_path: str, from_line: int |  None = None, to_line: int | None = None, read_entire_file: bool = False) -> str:
     """
     Reads a file and returns the specified lines or the entire file content.
+    Args:
+        file_path (str): The path to the file to read.
+        from_line (int | None): The starting line number (1-based) to read from.
+        to_line (int | None): The ending line number (1-based, exclusive) to read to.
+        read_entire_file (bool): If True, reads the entire file.
+    Returns:
+        str: The content of the file or the specified lines.
     """
     try:
         with open(file_path, "r") as file:
@@ -26,8 +33,15 @@ def read_file(file_path: str, from_line: int |  None = None, to_line: int | None
 def write_file(file_path: str, content: str, insert: bool, from_line: int | None = None, to_line: int |  None = None) -> str:
     """
     Replaces or inserts content in a file
-    If insert is true, creates file if it does not exist and inserts content from from_line
-    If insert is false, replaces content from from_line to to_line(exclusive)
+    
+    Args:
+        file_path (str): The path to the file to write to.
+        content (str): The content to write or insert.
+        insert (bool): If True, inserts content; if False, replaces content.
+        from_line (int | None): The starting line number (1-based) for insertion/replacement.
+        to_line (int | None): The ending line number (1-based, exclusive) for replacement.
+    Returns:
+        str: Success message or error message.
     """
     try:
         lines = []
@@ -68,6 +82,10 @@ def write_file(file_path: str, content: str, insert: bool, from_line: int | None
 def list_directory(path: str) -> str:
     """
     Lists all files in the given directory path and its subdirectories.
+    Args:
+        path (str): The directory path to list files from.
+    Returns:
+        str: A formatted string representing the directory structure.
     """
     result = []
     for root, dirs, files in os.walk(path):
@@ -82,6 +100,11 @@ def list_directory(path: str) -> str:
 def grep(root_path, pattern):
     """
     Searches for a regex pattern in all files under the given root directory.
+    Args:
+        root_path (str): The root directory to start the search.
+        pattern (str): The regex pattern to search for.
+    Returns:
+        list: A list of strings representing the file paths and line numbers where the pattern was found.
     """
     regex = re.compile(pattern, re.IGNORECASE)
 
@@ -100,10 +123,15 @@ def grep(root_path, pattern):
     print("Grep results:", result)
     return result
 
-def query(prompt: str) -> list[Document]:
+def query(prompt: str, results: int | int = 5) -> list[Document]:
     """
     Performs a vector similarity search on the indexed codebase using the provided prompt.
     Use this to search for relevant code snippets or files based on the prompt.
+    Args:
+        prompt (str): The search query.
+        results (int | int): The number of top results to return.
+    Returns:
+        list[Document]: A list of Document objects representing the search results.
     """
     return query_index(prompt)
 
@@ -111,6 +139,10 @@ def execute_command(command: str) -> dict:
     """
     Executes a shell command and returns the output.
     Note that the command will be executed in a Windows 11 machine.
+    Args:
+        command (str): The shell command to execute.
+    Returns:
+        dict: A dictionary containing the command output and error (if any).
     """
     try:
         inp = input("Can I run the command (y/n): {}\n".format(command))
